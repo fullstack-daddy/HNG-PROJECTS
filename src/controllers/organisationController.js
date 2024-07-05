@@ -1,5 +1,5 @@
-import Organisation from '../models/Organisation';
-import User from '../models/User';
+import Organisation from '../models/Organisation.js';
+import User from '../models/User.js';
 
 export async function getAllOrganisations(req, res) {
   try {

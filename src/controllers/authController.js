@@ -1,5 +1,5 @@
-import User from '../models/User';
-import Organisation from '../models/Organisation';
+import User from '../models/User.js';
+import Organisation from '../models/Organisation.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
