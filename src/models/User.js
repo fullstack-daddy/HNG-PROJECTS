@@ -1,6 +1,9 @@
 import { Schema, model } from 'mongoose';
-import { hash } from 'bcryptjs';
-import { isEmail } from 'validator';
+import bcrypt from 'bcryptjs';
+import validator from 'validator';
+
+const {hash} = bcrypt
+const { isEmail } = validator;
 
 const userSchema = new Schema({
   userId: {

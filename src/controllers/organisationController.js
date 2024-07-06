@@ -1,8 +1,9 @@
-import Organisation, { find, findOne } from '../models/Organisation';
+import Organisation from '../models/Organisation';
+import User from '../models/User';
 
 export async function getAllOrganisations(req, res) {
   try {
-    const organisations = await find({ users: req.user._id });
+    const organisations = await Organisation.find({ users: req.user._id });
 
     res.status(200).json({
       status: 'success',
@@ -26,7 +27,7 @@ export async function getAllOrganisations(req, res) {
 
 export async function getOrganisation(req, res) {
   try {
-    const organisation = await findOne({
+    const organisation = await Organisation.findOne({
       orgId: req.params.orgId,
       users: req.user._id,
     });
@@ -101,7 +102,7 @@ export async function createOrganisation(req, res) {
 export async function addUserToOrganisation(req, res) {
   try {
     const { userId } = req.body;
-    const organisation = await findOne({
+    const organisation = await Organisation.findOne({
       orgId: req.params.orgId,
       users: req.user._id,
     });

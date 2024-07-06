@@ -1,8 +1,8 @@
-import { findOne } from '../models/User';
+import User from '../models/User';
 
 export async function getUser(req, res) {
   try {
-    const user = await findOne({ userId: req.params.id });
+    const user = await User.findOne({ userId: req.params.id });
 
     if (!user) {
       return res.status(404).json({

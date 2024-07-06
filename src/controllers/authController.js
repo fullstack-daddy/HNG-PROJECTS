@@ -1,10 +1,12 @@
-import User, { findOne } from '../models/User';
+import User from '../models/User';
 import Organisation from '../models/Organisation';
-import { sign } from 'jsonwebtoken';
-import { compare } from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+
+const { compare } = bcrypt
 
 const generateToken = (userId) => {
-  return sign({ userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
+  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
 };
 
 export async function register(req, res) {
@@ -62,7 +64,7 @@ export async function register(req, res) {
 export async function login(req, res) {
   try {
     const { email, password } = req.body;
-    const user = await findOne({ email });
+    const user = await User.findOne({ email });
 
     if (!user || !(await compare(password, user.password))) {
       return res.status(401).json({
