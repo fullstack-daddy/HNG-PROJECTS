@@ -1,22 +1,21 @@
-import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+const jwt = require('jsonwebtoken');
+const User = require('../models/User.js');
 
-const auth = async (req, res, next) => {
+const authenticate = async (req, res, next) => {
+  const token = req.header('Authorization').replace('Bearer ', '');
   try {
-    const token = req.header('Authorization').replace('Bearer ', '');
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findOne({ userId: decoded.userId });
+    const user = await User.findOne({ where: { userId: decoded.userId } });
 
     if (!user) {
       throw new Error();
     }
 
-    req.token = token;
     req.user = user;
     next();
-  } catch (error) {
-    res.status(401).send({ error: 'Please authenticate.' });
+  } catch (e) {
+    res.status(401).send({ message: 'Please authenticate' });
   }
 };
 
-export default auth;
+module.exports = authenticate;

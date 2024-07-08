@@ -1,66 +1,32 @@
-import { Schema, model } from 'mongoose';
-import bcrypt from 'bcryptjs';
-import validator from 'validator';
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/database").default;
 
-const {hash} = bcrypt
-const { isEmail } = validator;
-
-const userSchema = new Schema({
+const User = sequelize.define("User", {
   userId: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
     unique: true,
+    allowNull: false,
   },
   firstName: {
-    type: String,
-    required: true,
-    trim: true,
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   lastName: {
-    type: String,
-    required: true,
-    trim: true,
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   email: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
     unique: true,
-    trim: true,
-    lowercase: true,
-    validate(value) {
-      if (!isEmail(value)) {
-        throw new Error('Invalid email');
-      }
-    },
+    allowNull: false,
   },
   password: {
-    type: String,
-    required: true,
-    minlength: 6,
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   phone: {
-    type: String,
-    trim: true,
+    type: DataTypes.STRING,
   },
-  organisations: [{
-    type: Schema.Types.ObjectId,
-    ref: 'Organisation',
-  }],
 });
 
-userSchema.pre('save', async function (next) {
-  if (this.isModified('password')) {
-    this.password = await hash(this.password, 8);
-  }
-  next();
-});
-
-userSchema.methods.toJSON = function () {
-  const user = this.toObject();
-  delete user.password;
-  return user;
-};
-
-const User = model('User', userSchema);
-
-export default User;
+module.exports = User;

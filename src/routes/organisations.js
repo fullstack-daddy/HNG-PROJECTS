@@ -1,12 +1,18 @@
-import express from 'express';
-import { getAllOrganisations, getOrganisation, createOrganisation, addUserToOrganisation } from '../controllers/organisationController.js';
-import auth from '../middlewares/auth.js';
+const express = require('express');
+const authenticate = require('../middlewares/auth');
+const { getOrganisations, getOrganisationById, createOrganisation } = require('../controllers/organisationController');
+const { check } = require('express-validator');
+const validate = require('../middlewares/validation');
 
 const router = express.Router();
 
-router.get('/', auth, getAllOrganisations);
-router.get('/:orgId', auth, getOrganisation);
-router.post('/', auth, createOrganisation);
-router.post('/:orgId/users', auth, addUserToOrganisation);
+router.get('/organisations', authenticate, getOrganisations);
+router.get('/organisations/:orgId', authenticate, getOrganisationById);
+router.post(
+  '/organisations',
+  authenticate,
+  validate([check('name').not().isEmpty().withMessage('Name is required')]),
+  createOrganisation
+);
 
-export default router;
+module.exports = router;

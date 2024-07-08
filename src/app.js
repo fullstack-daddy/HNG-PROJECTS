@@ -1,23 +1,26 @@
-import dotenv from 'dotenv';
-import express from 'express';
-import connectDB from './config/database.js';
-import authRoutes from './routes/auth.js';
-import userRoutes from './routes/users.js';
-import organisationRoutes from './routes/organisations.js';
-
-dotenv.config();
+const express = require("express");
+require("dotenv").config();
+const sequelize = require("./config/database").default;
+const authRoutes = require("./routes/auth.js");
+const userRoutes = require("./routes/users.js");
+const organisationRoutes = require("./routes/organisations");
 
 const app = express();
-
-connectDB();
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use("/auth", authRoutes);
+app.use("/api", userRoutes);
+app.use("/api", organisationRoutes);
 
-app.use('/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/organisations', organisationRoutes);
+app.listen(PORT, async () => {
+  console.log(`Server is running on port ${PORT}`);
+  try {
+    await sequelize.authenticate();
+    console.log("Database connected!");
+  } catch (error) {
+    console.error("Unable to connect to the database:", error);
+  }
+});
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-export default app;
+module.exports = app;

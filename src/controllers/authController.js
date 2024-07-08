@@ -1,94 +1,98 @@
-import User from '../models/User.js';
-import Organisation from '../models/Organisation.js';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
+import bycrypt from "bcryptjs";
+import { sign } from "jsonwebtoken";
+import { v4 as uuidv4 } from "uuid";
+import { create, findOne } from "../models/User.js";
+import { create as _create } from "../models/Organisation.js";
 
-const { compare } = bcrypt
+const register = async (req, res) => {
+  const { firstName, lastName, email, password, phone } = req.body;
 
-const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
-};
-
-export async function register(req, res) {
   try {
-    const { firstName, lastName, email, password, phone } = req.body;
+    const hashedPassword = await bycrypt.hash(password, 8);
+    const userId = uuidv4();
 
-    const user = new User({
-      userId: Date.now().toString(),
+    const user = await create({
+      userId,
       firstName,
       lastName,
       email,
-      password,
+      password: hashedPassword,
       phone,
     });
 
-    await user.save();
-
-    const organisation = new Organisation({
-      orgId: Date.now().toString(),
+    const orgId = uuidv4();
+    const organisation = await _create({
+      orgId,
       name: `${firstName}'s Organisation`,
-      users: [user._id],
+      description: "",
     });
 
-    await organisation.save();
+    const token = sign({ userId: user.userId }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
-    user.organisations.push(organisation._id);
-    await user.save();
-
-    const token = generateToken(user.userId);
-
-    res.status(201).json({
-      status: 'success',
-      message: 'Registration successful',
+    res.status(201).send({
+      status: "success",
+      message: "Registration successful",
       data: {
         accessToken: token,
-        user: user.toJSON(),
+        user: {
+          userId: user.userId,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          phone: user.phone,
+        },
       },
     });
-  } catch (error) {
-    if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map((err) => ({
-        field: err.path,
-        message: err.message,
-      }));
-      return res.status(422).json({ errors });
-    }
-    res.status(400).json({
-      status: 'Bad request',
-      message: 'Registration unsuccessful',
+  } catch (e) {
+    res.status(400).send({
+      status: "Bad request",
+      message: "Registration unsuccessful",
       statusCode: 400,
     });
   }
-}
+};
 
-export async function login(req, res) {
+const login = async (req, res) => {
+  const { email, password } = req.body;
+
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const user = await findOne({ where: { email } });
 
     if (!user || !(await compare(password, user.password))) {
-      return res.status(401).json({
-        status: 'Bad request',
-        message: 'Authentication failed',
+      return res.status(401).send({
+        status: "Bad request",
+        message: "Authentication failed",
         statusCode: 401,
       });
     }
 
-    const token = generateToken(user.userId);
+    const token = sign({ userId: user.userId }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
-    res.status(200).json({
-      status: 'success',
-      message: 'Login successful',
+    res.status(200).send({
+      status: "success",
+      message: "Login successful",
       data: {
         accessToken: token,
-        user: user.toJSON(),
+        user: {
+          userId: user.userId,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          phone: user.phone,
+        },
       },
     });
-  } catch (error) {
-    res.status(400).json({
-      status: 'Bad request',
-      message: 'Authentication failed',
+  } catch (e) {
+    res.status(400).send({
+      status: "Bad request",
+      message: "Authentication failed",
       statusCode: 401,
     });
   }
-}
+};
+
+export default { register, login };

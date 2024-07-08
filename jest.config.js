@@ -1,9 +1,7 @@
 export default {
   testEnvironment: 'node',
   transform: {},
-  // extensionsToTreatAsEsm: ['.js'],
-  moduleNameMapper: {
-    '^(\\.{1,2}/.*)\\.js$': '$1',
-  },
-  transformIgnorePatterns: ['node_modules/(?!variables/.*)'],
+  moduleFileExtensions: ["js", "mjs"],
+  testMatch: ["**/__tests__/**/*.[jt]s?(x)", "**/?(*.)+(spec|test).[tj]s?(x)"],
+  extensionsToTreatAsEsm: [".ts"]
 };

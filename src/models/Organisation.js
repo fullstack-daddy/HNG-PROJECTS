@@ -1,26 +1,19 @@
-import { Schema, model } from 'mongoose';
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/database").default;
 
-const organisationSchema = new Schema({
+const Organisation = sequelize.define("Organisation", {
   orgId: {
-    type: String,
-    required: true,
+    type: DataTypes.STRING,
     unique: true,
+    allowNull: false,
   },
   name: {
-    type: String,
-    required: true,
-    trim: true,
+    type: DataTypes.STRING,
+    allowNull: false,
   },
   description: {
-    type: String,
-    trim: true,
+    type: DataTypes.STRING,
   },
-  users: [{
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-  }],
 });
 
-const Organisation = model('Organisation', organisationSchema);
-
-export default Organisation;
+module.exports = Organisation;
